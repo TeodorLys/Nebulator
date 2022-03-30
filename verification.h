@@ -16,6 +16,17 @@ public:
             return false;
         if(!exists(".\\dep\\powershell\\source_json.ps1"))
             return false;
+
+        if(!exists(".\\dep\\lua\\auth_call.lua"))
+            return false;
+        if(!exists(".\\dep\\lua\\download_conf.lua"))
+            return false;
+        if(!exists(".\\dep\\lua\\sel_org.lua"))
+            return false;
+        if(!exists(".\\dep\\lua\\send.lua"))
+            return false;
+        if(!exists(".\\dep\\lua\\source_get.lua"))
+            return false;
         if(!exists(".\\dep\\conf"))
             create_conf_folder();
         return true;
