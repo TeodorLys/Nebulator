@@ -9,6 +9,7 @@ std::vector<data::service_object> data::lookup_service_objects;
 data::organisation data::current_org;
 std::string data::auth_token;
 std::string data::current_path = "";
+std::string data::startup_conf = "";
 /*STATIC DECLARATION*/
 
 // Splits a service object into name, protocol, port-type and the ports

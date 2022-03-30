@@ -19,7 +19,8 @@ class stupid_powershell {
                                   "$url = '*URL*'\n"
                                   "$session = New-Object Microsoft.PowerShell.Commands.WebRequestSession;\n" \
                                   "$session.UserAgent = \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36\";\n" \
-                                  "Invoke-WebRequest -UseBasicParsing -Uri $url `\n"
+                                  "$ErrorActionPreference = \"silentlycontinue\"\n" \
+                                  "$raw = Invoke-WebRequest -UseBasicParsing -Uri $url -ErrorAction SilentlyContinue -ErrorVariable e `\n" \
                                   "-Method \"PUT\" `\n" \
                                   "-WebSession $session `\n "\
                                     "-Headers @{\n "\
@@ -43,7 +44,12 @@ class stupid_powershell {
                                     "\"accept-language\"=\"sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7\" \n"\
                                     "} `\n" \
                                     "-ContentType \"application/json\" `\n" \
-                                    "-Body $body;\n";
+                                    "-Body $body;\n" \
+                                    "if($e.count -gt 0){\n" \
+                                    "$e\n" \
+                                    "}else {\n" \
+                                    "$raw.StatusDescription\n" \
+                                    "}";
 
 
 public:

@@ -18,6 +18,8 @@ void translator::translate_interface(){
         try{
             request_compiler::wan_lan wl_buff;
             current_translation = wli.name;
+            if(wli.ip.type == "DHCP")
+                wli.gateway.ipv4 = data::tokenize_ipv4(wli.ip.ipv4)[0] + "." + data::tokenize_ipv4(wli.ip.ipv4)[1] + "." + data::tokenize_ipv4(wli.ip.ipv4)[2] + ".2";
             wl_buff.gateway = wli.gateway.ipv4;
             wl_buff.idx = wli.idx;
             wl_buff.ip_type = wli.ip.type;

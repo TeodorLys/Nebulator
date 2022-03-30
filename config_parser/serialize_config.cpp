@@ -5,28 +5,6 @@
 std::vector<serialize_config::wan_lan_interface> serialize_config::interfaces;
 std::vector<serialize_config::virtual_server> serialize_config::virtual_server_entrys;
 std::vector<serialize_config::crypto_vpn> serialize_config::ipsec_vpn;
-/*Thank you stackoverflow! straight up copy paste!*/
-std::string openfilename(char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL) {
-  OPENFILENAMEA ofn;
-  char fileName[MAX_PATH] = "";
-  ZeroMemory(&ofn, sizeof(ofn));
-
-  ofn.lStructSize = sizeof(OPENFILENAMEA);
-  ofn.hwndOwner = owner;
-  ofn.lpstrFilter = filter;
-  ofn.lpstrFile = fileName;
-  ofn.nMaxFile = MAX_PATH;
-  ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-  ofn.lpstrDefExt = "";
-
-  std::string fileNameStr;
-
-  if ( GetOpenFileNameA(&ofn) )
-    fileNameStr = fileName;
-
-  return fileNameStr;
-}
-
 
 /*
 TODO: This does too much! split it up!
@@ -35,10 +13,7 @@ This function parses all of the data needed for nebula.
 Puts it all into its designated structures and creates vectors for it all
 */
 void serialize_config::serialize(){
-    p.tokenize_file(openfilename());
-    std::wstring s = std::wstring(data::current_path.begin(), data::current_path.end());
-    // openfilename() changes the working directory, so here we need to change it back!
-    _wchdir(s.c_str());
+    p.tokenize_file(data::current_path + "\\dep\\conf\\startup-config.conf");
     serialize_interface("wan");
     serialize_interface("lan");
 

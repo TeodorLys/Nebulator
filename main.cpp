@@ -2,6 +2,7 @@
 #include "stupid_powershell.h"
 #include "config_parser/serialize_config.h"
 #include "translation/translator.h"
+#include "verification.h"
 #include <Windows.h>
 #include <chrono>
 #include "config_parser/data.h"
@@ -27,9 +28,16 @@ int main(int argc, char** argv){
     GetModuleFileNameA( NULL, buffer, MAX_PATH );
     data::current_path = buffer;
     data::current_path.erase(data::current_path.find_last_of("\\"), data::current_path.length());
-    data::current_path.erase(data::current_path.find_last_of("\\"), data::current_path.length());
-
-    printf("%s\n", data::current_path.c_str());
+    data::current_path.erase(data::current_path.find_last_of("\\"), data::current_path.length());  // TEMP
+    printf("Checking dependencies...\n");
+    verification verify;
+    if(!verify.verify_scripts()){
+        printf("Could not verify dependencies... contact Teodor...exiting\n");
+        system("pause");
+        exit(0);
+    }
+    printf("OK!\n");
+    system("pause");
 
     printf("Loading Authentication...\n");
     std::string script = "lua " + data::current_path  + "\\dep\\lua\\auth_call.lua"; 
@@ -37,7 +45,7 @@ int main(int argc, char** argv){
     std::fstream f(data::current_path + "\\dep\\conf\\auth.txt", std::fstream::in);
     std::getline(f, data::auth_token);
     f.close();
-    printf("Done!\n");
+    printf("OK!\n");
 
     script = "lua " + data::current_path  + "\\dep\\lua\\sel_org.lua"; 
     system(script.c_str());
@@ -49,7 +57,22 @@ int main(int argc, char** argv){
     printf("Downloading source files...\n");
     script = "lua " + data::current_path  + "\\dep\\lua\\source_get.lua"; 
     system(script.c_str());
-    printf("Done!\n");
+    printf("OK!\n");
+
+    printf("Downloading startup-config...\n");
+    printf("Enter Address, user and password for the firewall\n");
+    script = "lua " + data::current_path  + "\\dep\\lua\\download_conf.lua";
+    system(script.c_str());
+    std::fstream f_conf("\\dep\\conf\\startup-config.conf", std::fstream::in);
+    std::string conf_check;
+    std::getline(f_conf, conf_check);
+    if(conf_check == "nope"){
+        printf("Could not download startup config... exiting\n");
+        system("pause");
+        exit(0);
+    }
+    f_conf.close();
+    printf("OK!\n");
 
 
     request_compiler rc;
@@ -63,14 +86,13 @@ int main(int argc, char** argv){
     translator trans;
     printf("Translating interfaces...\n");
     trans.translate_interface();
-    printf("Done!\n");
+    printf("OK!\n");
     printf("Translating virtual servers...\n");
     trans.translate_nat_virtual_server();
-    printf("Done!\n");
+    printf("OK!\n");
     printf("Translating site_to_site VPN...\n");
     trans.translate_vpn();
-    printf("Done!\n");
-    //system("pause");
+    printf("OK!\n");
     printf("Sending interface config to Nebula...");
     sp.call_stupid_powershell(1, data::current_org);
     printf("Sending NAT config to Nebula...");
