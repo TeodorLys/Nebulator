@@ -37,7 +37,6 @@ int main(int argc, char** argv){
         exit(0);
     }
     printf("OK!\n");
-    system("pause");
 
     printf("Loading Authentication...\n");
     std::string script = "lua " + data::current_path  + "\\dep\\lua\\auth_call.lua"; 
