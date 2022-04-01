@@ -105,7 +105,7 @@ public:
         replace_in_string("*AUTH*", data::auth_token, buff);
         f << buff;
         f.close();
-        std::string script = "lua " + data::current_path  + "\\dep\\lua\\send.lua"; 
+        std::string script = data::current_path  + "\\dep\\lua\\send.exe"; 
         system(script.c_str());
     }
 

@@ -43,7 +43,7 @@ void serialize_config::serialize(){
         /*
         checking against interfaces
         */
-       for(wan_lan_interface wli : interfaces){
+       /*for(wan_lan_interface wli : interfaces){
            if(data::tokenize_ipv4(ipsec_vpn[a].local_policy.ipv4)[2] == data::tokenize_ipv4(wli.ip.ipv4)[2]){
                 std::vector<std::string> _tmp = data::tokenize_ipv4(ipsec_vpn[a].local_policy.ipv4);
                 std::string _new_ip = _tmp[0] + "." + _tmp[1] + "." + std::to_string(data::random_number(20)) + "." + _tmp[3];
@@ -56,7 +56,7 @@ void serialize_config::serialize(){
                 printf("VPN IP %s in %s has the same interface subnet %s! Changing %s to %s as placeholder\n", ipsec_vpn[a].remote_policy.ipv4.c_str(), ipsec_vpn[a].name.c_str(), wli.name.c_str(), ipsec_vpn[a].name.c_str(), _new_ip.c_str());
                 ipsec_vpn[a].remote_policy.ipv4 = _new_ip;
            }
-       }
+       }*/
     }
     /*check for duplicate ipv4s VPN*/
 }

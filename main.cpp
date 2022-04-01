@@ -5,7 +5,30 @@
 #include "verification.h"
 #include <Windows.h>
 #include <chrono>
+#include <thread>
 #include "config_parser/data.h"
+#include <iostream>
+
+std::string openfilename(char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL) {
+  OPENFILENAMEA ofn;
+  char fileName[MAX_PATH] = "";
+  ZeroMemory(&ofn, sizeof(ofn));
+
+  ofn.lStructSize = sizeof(OPENFILENAMEA);
+  ofn.hwndOwner = owner;
+  ofn.lpstrFilter = filter;
+  ofn.lpstrFile = fileName;
+  ofn.nMaxFile = MAX_PATH;
+  ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+  ofn.lpstrDefExt = "";
+
+  std::string fileNameStr;
+
+  if ( GetOpenFileNameA(&ofn) )
+    fileNameStr = fileName;
+
+  return fileNameStr;
+}
 
 /*
 
@@ -28,7 +51,7 @@ int main(int argc, char** argv){
     GetModuleFileNameA( NULL, buffer, MAX_PATH );
     data::current_path = buffer;
     data::current_path.erase(data::current_path.find_last_of("\\"), data::current_path.length());
-    data::current_path.erase(data::current_path.find_last_of("\\"), data::current_path.length());  // TEMP
+    //data::current_path.erase(data::current_path.find_last_of("\\"), data::current_path.length());  // TEMP
     printf("Checking dependencies...\n");
     verification verify;
     if(!verify.verify_scripts()){
@@ -39,14 +62,19 @@ int main(int argc, char** argv){
     printf("OK!\n");
 
     printf("Loading Authentication...\n");
-    std::string script = "lua " + data::current_path  + "\\dep\\lua\\auth_call.lua"; 
+    std::string script = data::current_path  + "\\dep\\lua\\auth_call.exe"; 
     system(script.c_str());
     std::fstream f(data::current_path + "\\dep\\conf\\auth.txt", std::fstream::in);
     std::getline(f, data::auth_token);
     f.close();
+    if(data::auth_token.empty()){
+        printf("Could not find authentication token...exiting\n");
+        system("pause");
+        exit(0);
+    }
     printf("OK!\n");
 
-    script = "lua " + data::current_path  + "\\dep\\lua\\sel_org.lua"; 
+    script = data::current_path  + "\\dep\\lua\\sel_org.exe"; 
     system(script.c_str());
     f.open(data::current_path + "\\dep\\conf\\org_site.txt", std::fstream::in);
     std::string org_site;
@@ -54,21 +82,35 @@ int main(int argc, char** argv){
     f.close();
 
     printf("Downloading source files...\n");
-    script = "lua " + data::current_path  + "\\dep\\lua\\source_get.lua"; 
+    script = data::current_path  + "\\dep\\lua\\source_get.exe"; 
     system(script.c_str());
     printf("OK!\n");
 
     printf("Downloading startup-config...\n");
     printf("Enter Address, user and password for the firewall\n");
-    script = "lua " + data::current_path  + "\\dep\\lua\\download_conf.lua";
+    script = data::current_path  + "\\dep\\lua\\download_conf.exe";
     system(script.c_str());
-    std::fstream f_conf("\\dep\\conf\\startup-config.conf", std::fstream::in);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::fstream f_conf(data::current_path + "\\dep\\conf\\startup-config.conf", std::fstream::in);
     std::string conf_check;
     std::getline(f_conf, conf_check);
-    if(conf_check == "nope"){
-        printf("Could not download startup config... exiting\n");
-        system("pause");
-        exit(0);
+    if(conf_check == "nope" || conf_check.empty()){
+        printf("Could not download startup config\n");
+        printf("Want to load from drive? [Y/N]: ");
+        std::string input;
+        std::getline(std::cin, input);
+        std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+        if(input == "y"){
+            data::current_path = openfilename();
+            if(data::current_path.empty()){
+                printf("Could not load startup config from drive... exiting\n");
+                system("pause");
+                exit(0);
+            }
+        }else {
+            system("pause");
+            exit(0);
+        }
     }
     f_conf.close();
     printf("OK!\n");

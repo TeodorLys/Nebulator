@@ -111,4 +111,5 @@ public:
         }
         return interface_id("", "", "");
     }
+private:
 };
