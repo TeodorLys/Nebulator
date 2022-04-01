@@ -51,7 +51,6 @@ int main(int argc, char** argv){
     GetModuleFileNameA( NULL, buffer, MAX_PATH );
     data::current_path = buffer;
     data::current_path.erase(data::current_path.find_last_of("\\"), data::current_path.length());
-    //data::current_path.erase(data::current_path.find_last_of("\\"), data::current_path.length());  // TEMP
     printf("Checking dependencies...\n");
     verification verify;
     if(!verify.verify_scripts()){
@@ -60,9 +59,18 @@ int main(int argc, char** argv){
         exit(0);
     }
     printf("OK!\n");
+    printf("Checking execution policy...\n");
+    std::string script = data::current_path  + "\\dep\\lua\\ps.exe -exec"; 
+    system(script.c_str());
+    if(verify.exists(data::current_path + "\\dep\\conf\\nope.txt")){
+        printf("Failed!...exiting\n");
+        remove(std::string(data::current_path + "\\dep\\conf\\nope.txt").c_str());
+        exit(0);
+    }
+    printf("OK!\n");
 
     printf("Loading Authentication...\n");
-    std::string script = data::current_path  + "\\dep\\lua\\auth_call.exe"; 
+    script = data::current_path  + "\\dep\\lua\\ps.exe -auth"; 
     system(script.c_str());
     std::fstream f(data::current_path + "\\dep\\conf\\auth.txt", std::fstream::in);
     std::getline(f, data::auth_token);
@@ -74,7 +82,7 @@ int main(int argc, char** argv){
     }
     printf("OK!\n");
 
-    script = data::current_path  + "\\dep\\lua\\sel_org.exe"; 
+    script = data::current_path  + "\\dep\\lua\\ps.exe -sel_org"; 
     system(script.c_str());
     f.open(data::current_path + "\\dep\\conf\\org_site.txt", std::fstream::in);
     std::string org_site;
@@ -82,13 +90,13 @@ int main(int argc, char** argv){
     f.close();
 
     printf("Downloading source files...\n");
-    script = data::current_path  + "\\dep\\lua\\source_get.exe"; 
+    script = data::current_path  + "\\dep\\lua\\ps.exe -json"; 
     system(script.c_str());
     printf("OK!\n");
 
     printf("Downloading startup-config...\n");
     printf("Enter Address, user and password for the firewall\n");
-    script = data::current_path  + "\\dep\\lua\\download_conf.exe";
+    script = data::current_path  + "\\dep\\lua\\ps.exe -conf";
     system(script.c_str());
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     std::fstream f_conf(data::current_path + "\\dep\\conf\\startup-config.conf", std::fstream::in);

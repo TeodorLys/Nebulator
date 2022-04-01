@@ -17,26 +17,17 @@ public:
         if(!exists(".\\dep\\powershell\\source_json.ps1"))
             return false;
 
-        if(!exists(".\\dep\\lua\\auth_call.exe"))
-            return false;
-        if(!exists(".\\dep\\lua\\download_conf.exe"))
-            return false;
-        if(!exists(".\\dep\\lua\\sel_org.exe"))
-            return false;
-        if(!exists(".\\dep\\lua\\send.exe"))
-            return false;
-        if(!exists(".\\dep\\lua\\source_get.exe"))
+        if(!exists(".\\dep\\lua\\ps.exe"))
             return false;
         if(!exists(".\\dep\\conf"))
             create_conf_folder();
         return true;
     }
-private:    
     bool exists (const std::string& name) {
         struct stat buffer;   
         return (stat (name.c_str(), &buffer) == 0); 
     }
-
+private:    
     bool create_conf_folder(){
         _wmkdir(L".\\dep\\conf");
         return true;
