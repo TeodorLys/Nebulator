@@ -1,5 +1,7 @@
 # Nebulator
-Automatically translates startup-config from standalone Zyxel firewalls and sends it to nebula
+Automatically translates startup-config from standalone Zyxel firewalls and sends it to nebula.
+Program uses Lua to run powershell scripts, since running powershell scripts in C++ are a bit clunky...
+Probably should have written the program in like C# or python, but no... I like C++
 
 ## Dependencies
 ### A JSON parser from nlohmann 
