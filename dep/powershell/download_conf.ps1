@@ -17,6 +17,12 @@ $ErrorActionPreference = "silentlycontinue"
 
 write-Host "IP: " -nonewline
 $ip = read-host
+if($ip -eq $null){
+  write-host "Failed"
+  "nope" | set-content ".\dep\conf\startup-config.conf"
+  exit;
+}
+
 $dump = test-connection $ip -count 1 -ErrorAction SilentlyContinue -ErrorVariable tt
 if($tt.count -gt 0){
   write-host "Failed"
