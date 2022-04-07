@@ -45,10 +45,9 @@ class stupid_powershell {
                                     "} `\n" \
                                     "-ContentType \"application/json\" `\n" \
                                     "-Body $body;\n" \
-                                    "if($e.count -gt 0){\n" \
-                                    "$e\n" \
-                                    "}else {\n" \
-                                    "$raw.StatusDescription\n" \
+                                    "$raw.statusdescription\n" \
+                                    "foreach($a in $e){\n" \
+                                    "\"[POWERSHELL]: \" + $a.message.tostring() | add-content \"log0.txt\"\n" \
                                     "}";
 
 
@@ -68,20 +67,16 @@ public:
             _url = format_url(org, vpn_url);
             break;
         }
-        int i = buff.find("*URL*");
-        buff.erase(buff.find("*URL*"), 5);
-        buff.insert(i, _url);
-        i = buff.find("*JSON*");
-        buff.erase(buff.find("*JSON*"), 6);
+        replace_in_string("*URL*", _url, buff);
         switch(idx){
             case 1:
-            buff.insert(i, interface_json_file_path);
+            replace_in_string("*JSON*", interface_json_file_path, buff);
             break;
             case 2:
-            buff.insert(i, nat_json_file_path);
+            replace_in_string("*JSON*", nat_json_file_path, buff);
             break;
             case 3:
-            buff.insert(i, vpn_json_file_path);
+            replace_in_string("*JSON*", vpn_json_file_path, buff);
             break;
         }
         replace_in_string("*pORG*", data::current_org.org_id, buff);
@@ -118,7 +113,7 @@ public:
         int _site = _url.find("*SITE*");
         _url.erase(_site, 6);
         _url.insert(_site, org.site_id);
-        //printf("%s\n", _url.c_str());
+        //logger::log("%s\n", _url.c_str());
         return _url;
     }
 

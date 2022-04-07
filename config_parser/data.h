@@ -42,7 +42,7 @@ public:
     static service_object tokenize_service_object(std::string s);
     static std::string auth_token;
     static std::string current_path;
-    static std::string startup_conf;;
+    static std::string startup_conf;
 public:
 
     static address_object search_address_object(std::string s) {

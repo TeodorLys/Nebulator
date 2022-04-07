@@ -1,5 +1,6 @@
 #include "translator.h"
 #include "../config_parser/serialize_config.h"
+#include "../logger.h"
 
 std::vector<request_compiler::wan_lan> translator::interfaces;
 std::vector<request_compiler::nat_vs> translator::nat;
@@ -33,7 +34,7 @@ void translator::translate_interface(){
             wl_buff.id = temp.get_loaded_interface(wli.name).id;
             interfaces.push_back(wl_buff);
         }catch(std::exception &e){
-            printf("%s\n", e.what());
+            logger::log("%s\n", e.what());
         }
     }
     temp.push_interface_json(request_compiler::wan_lan());
@@ -63,7 +64,7 @@ void translator::translate_nat_virtual_server(){
         }
         nat_buff.remote_ipv4_list = nlohmann::json::array();
         // When we start the program we download the default interface
-        // that includes the interface id:s nat need the wan id to function...
+        // that includes the interface id:s. NAT need the wan id to function...
         nat_buff.wan_iface = get_json_interface(vse.inte).id;   // TEMP!
         nat.push_back(nat_buff);
     }
@@ -80,6 +81,7 @@ There are a few points of data that we cant just move over... without parsing
 soooooo...
 TODO: Do that parsing...
 */
+    std::string msg_buffer = "";
     for(serialize_config::crypto_vpn _vpn : serialize_config::ipsec_vpn){
         request_compiler::sts_vpn vpn_buff;
         current_translation = _vpn.name;
@@ -88,20 +90,20 @@ TODO: Do that parsing...
         vpn_buff.enabled = _vpn.state == "activate" ? true : false;
         vpn_buff.ipsec_asso_lifetime = std::stoi(_vpn.secure_associtaion);
         vpn_buff.ipsec_esp =  parse_vpn_crypt_auth(_vpn.transform_set);
-        printf("Using ipsec_ike_diffie = DH2 for %s\n", _vpn.name.c_str());
+        logger::log("Using ipsec_ike_diffie = DH2 for %s\n", _vpn.name.c_str());
         vpn_buff.ipsec_ike_diffie = "DH2";   // Helper function?
-        printf("Using ipsec_ike_version IKE_V1 for %s\n", _vpn.name.c_str());
+        logger::log("Using ipsec_ike_version IKE_V1 for %s\n", _vpn.name.c_str());
         vpn_buff.ipsec_ike_version = "IKE_V1";
         vpn_buff.ipsec_lifetime = std::stoi(_vpn.ipsec_isakmp.life_time);
         //vpn_buff.ipsec_local_id
         vpn_buff.ipsec_negotiation_mode = _vpn.ipsec_isakmp.mode;
-        printf("Using ipsec_pfs_diffie = DH2 for %s\n", _vpn.name.c_str());
+        logger::log("Using ipsec_pfs_diffie = DH2 for %s\n", _vpn.name.c_str());
         vpn_buff.ipsec_pfs_diffie = "DH2";
         vpn_buff.ipsec_preset = "DEFAULT";
         vpn_buff.ipsec_proposal =  parse_vpn_crypt_auth(_vpn.ipsec_isakmp.transform_set);
         vpn_buff.name = _vpn.name;
         // TODO: Decrypt the key? somehow...
-        printf("Preshared key is encrypted for premise firewalls, using 1234567890 as placeholder\n");
+        logger::log("Preshared key is encrypted for premise firewalls, using 1234567890 as placeholder for %s\n", _vpn.name.c_str());
         vpn_buff.pre_shared_key = "1234567890";
         if(_vpn.remote_policy.ipv4.find("/") != std::string::npos){
             _vpn.remote_policy.ipv4.erase(_vpn.remote_policy.ipv4.find("/"), _vpn.remote_policy.ipv4.length());
@@ -176,11 +178,11 @@ nlohmann::json translator::parse_vpn_crypt_auth(std::string old){
     std::string aes = old.substr(0, old.find("-"));
     std::string sha = old.substr(old.find("-") + 1, old.length());
     if(aes.size() < 4){
-        printf("Encryption could not be parsed for %s! Using default of AES128\n", current_translation.c_str());
+        logger::log("Encryption could not be parsed for %s! Using default of AES128\n", current_translation.c_str());
         aes = "AES128";
     }
     if(sha.size() < 4 && sha.find("sha") != std::string::npos){
-        printf("Authentication could not be parsed for %s! Using default of SHA256\n", current_translation.c_str());
+        logger::log("Authentication could not be parsed for %s! Using default of SHA256\n", current_translation.c_str());
         sha = "SHA256";
     }
     /*

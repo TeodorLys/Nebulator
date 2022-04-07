@@ -18,7 +18,7 @@ void parser::tokenize_file(std::string path){
             // We just stumbled upon a "!"
             bool block_token = false;
             // A block is a piece of data that contains a name and objects. 
-            // Objects inside a block allways begin with a space " " 
+            // Objects inside a block allways begin with a " "(whitespace)
             for(std::string _s : _buffer)
                 if(_s[0] == ' '){
                     token_block();
@@ -44,7 +44,7 @@ std::vector<data::tokenized_stuff> parser::find_block(std::string name, std::str
     then we find:
     "interface wan1", "interface wan1_ppp"
     But we want to find the block containing the ip address.
-    so we can include say that the block needs to include and "ip address" object inside the block
+    so we can include say that the block needs to include a "ip address" object inside the block
     */
     std::vector<data::tokenized_stuff> buffer;
     for(data::tokenized_stuff s : data::blocks){
