@@ -12,8 +12,6 @@ public:
             return false;
         if(!exists(".\\dep\\powershell\\sel_org_site.ps1"))
             return false;
-        if(!exists(".\\dep\\powershell\\script.ps1"))
-            return false;
         if(!exists(".\\dep\\powershell\\source_json.ps1"))
             return false;
 
