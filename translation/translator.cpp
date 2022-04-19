@@ -119,6 +119,44 @@ TODO: Do that parsing...
 }
 
 
+void translator::display_data() {
+    logger::log("\n\n[INTERFACE] {\n");
+    for (request_compiler::wan_lan wl : interfaces) {
+        logger::log("\x1B[33m   %s, ip: %s, subnet: %s, type: %s\033[0m\n", wl.name.c_str(), wl.ipv4.dump().c_str(), wl.submask.dump().c_str(), wl.ip_type.dump().c_str());
+    }
+    logger::log("{\n\n");
+
+    logger::log("[NAT] {\n");
+    for (request_compiler::nat_vs _nat : nat) {
+        logger::log("\x1B[33m   uplink: %s, protocol: %s, public_ip: %s, local_ip: %s, local_port: %s, desc: %s\033[0m\n", _nat.wan_iface.dump().c_str(), _nat.protocol.dump().c_str(), _nat.pub_ipv4.dump().c_str(), _nat.priv_ipv4.dump().c_str(), _nat.priv_ports.dump().c_str(), _nat.desc.dump().c_str());
+    }
+    logger::log("{\n\n");
+
+    logger::log("[VPN] {\n");
+    for (request_compiler::sts_vpn _vpn : vpn) {
+        logger::log("\x1B[33m   name: %s, public_ip: %s, priv_subnet: %s, preshared: %s\033[0m\n", _vpn.name.c_str(), _vpn.remote_address.dump().c_str(), _vpn.remote_cidr_list.dump().c_str(), _vpn.pre_shared_key.dump().c_str());
+    }
+    logger::log("{\n\n");
+
+    logger::log("\x1B[32mIf you are connected to the firewall, please disconnect from it.\033[0m\n");
+    logger::log("\x1B[32mBut leave uplink connected.\033[0m\n");
+
+    logger::log("ALL OK? [Y/N] ");
+
+    std::string input;
+
+    std::getline(std::cin, input);
+
+    std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+
+    if (input != "y") {
+        logger::safe_exit(0);
+    }
+
+}
+
+
+
 /*PRIVATE HELPER FUNCTIONS*/
 /*NAT PORTS FORMATTING*/
 

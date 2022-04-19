@@ -18,7 +18,7 @@ public:
     void translate_interface();
     void translate_nat_virtual_server();
     void translate_vpn();
-
+    void display_data();
 private:
     int protocol_translation(std::string prot);
     nlohmann::json parse_ports(std::string ports);

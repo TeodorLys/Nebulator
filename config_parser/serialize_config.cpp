@@ -123,10 +123,10 @@ serialize_config::virtual_server serialize_config::parse_virtual_server_object_t
             else if (_tok.at(a) == "map-type") {
                 buff.map_type = _tok.at(a + 1);
                 if (_tok.at(a + 1) == "original-service") {
-                    buff.external_service = data::search_service_object(_tok.at(a + 1));
+                    buff.external_service = data::search_service_object(_tok.at(a + 2));
                 }
                 else if (_tok.at(a + 1) == "service-group") {
-                    parse_virtual_server_service_group(buff, data::search_object_group(_tok.at(a + 1)), ranges);
+                    parse_virtual_server_service_group(buff, data::search_object_group(_tok.at(a + 2)), ranges);
                 }
             }
             else if (_tok.at(a) == "mapped-service") {
@@ -319,55 +319,68 @@ serialize_config::ip_dhcp_pool_interface serialize_config::parse_dhcp_pool(std::
 
 serialize_config::isakmp_vpn serialize_config::parse_isakmap(data::tokenized_stuff map){
     isakmp_vpn _tmp;
+    std::string current_parse = "";
     try {
         _tmp.name = data::tokenize(map.name).at(2);
 
         for (std::string raw : map.raw) {
             if (raw == "activate" || raw == "deactivate") {
+                current_parse = "activate/deactivate";
                 _tmp.state = raw;
             }
             else if (raw.find("local-ip") != std::string::npos) {
+                current_parse = "local-ip";
                 ip_address_config_style_interface ip = get_interface(data::tokenize(raw).at(2)).ip;
                 _tmp.local_ipv4 = ip;
             }
             else if (raw.find("peer-ip") != std::string::npos) {
+                current_parse = "peer-ip";
                 ip_address_config_style_interface iacsi;
                 iacsi.ipv4 = data::tokenize(raw).at(1);
                 iacsi.subnet = data::tokenize(raw).at(2);
                 _tmp.peer_ipv4 = iacsi;
             }
             else if (raw.find("authentication") != std::string::npos) {
+                current_parse = "authentication";
                 _tmp.auth = data::tokenize(raw).at(1);
             }
             else if (raw.find("local-id") != std::string::npos) {
+                current_parse = "local-id";
                 _tmp.local_id = data::tokenize(raw).at(1);  //TEMPORARY, DONT THINK THIS IS USED
             }
             else if (raw.find("peer-id") != std::string::npos) {
+                current_parse = "peer-id";
                 _tmp.peer_id = data::tokenize(raw).at(1); //TEMPORARY, DONT THINK THIS IS USED
             }
             else if (raw.find("fall-back-check-interval") != std::string::npos) {
+                current_parse = "fall-back-check-interval";
                 _tmp.fall_back_check = data::tokenize(raw).at(1);
             }
             else if (raw.find("lifetime") != std::string::npos) {
+                current_parse = "lifetime";
                 _tmp.life_time = data::tokenize(raw).at(1);
             }
             else if (raw.find("group2") != std::string::npos) {
+                current_parse = "group2";
                 _tmp.group = raw;  //TODO: CHECK THIS ONE! MIGHT BE DIFFIE HELLMAN
             }
             else if (raw.find("transform-set") != std::string::npos) {
+                current_parse = "transform-set";
                 _tmp.transform_set = data::tokenize(raw).at(1);
             }
             else if (raw.find("mode") != std::string::npos) {
+                current_parse = "mode";
                 _tmp.mode = data::tokenize(raw).at(1);
                 std::transform(_tmp.mode.begin(), _tmp.mode.end(), _tmp.mode.begin(), ::toupper);
             }
             else if (raw.find("dpd-interval") != std::string::npos) {
+                current_parse = "dpd-interval";
                 _tmp.dpd_interval = data::tokenize(raw).at(1);
             }
         }
     }
     catch(std::exception e) {
-        logger::log("\"parse_isakmap\" out of range! Tell Teodor!! saved in log0.txt %s, %s\n", e.what(), map.name.c_str());
+        logger::log("\"parse_isakmap\" out of range! Tell Teodor!! saved in log0.txt %s, %s, %s\n", e.what(), current_parse.c_str(), map.name.c_str());
         system("pause");
         exit(0);
     }
@@ -376,35 +389,45 @@ serialize_config::isakmp_vpn serialize_config::parse_isakmap(data::tokenized_stu
 
 serialize_config::crypto_vpn serialize_config::parse_crypto_map(data::tokenized_stuff map){
     crypto_vpn _tmp;
+    std::string current_parse = "";
     try {
         _tmp.name = data::tokenize(map.name).at(2);
 
         for (std::string raw : map.raw) {
             if (raw == "activate" || raw == "deactivate") {
+                current_parse = "activate/deactivate";
                 _tmp.state = raw;
             }
             else if (raw.find("adjust-mss") != std::string::npos) {
+                current_parse = "adjust-mss";
                 _tmp.adjust_mss = data::tokenize(raw).at(1);
             }
             else if (raw.find("ipsec-isakmp") != std::string::npos) {
-                _tmp.ipsec_isakmp = parse_isakmap(p.find_single_block("isakmp policy " + data::tokenize(raw).at(1)));
+                current_parse = "ipsec-isakmp";
+                _tmp.ipsec_isakmp = parse_isakmap(p.find_single_block("policy " + data::tokenize(raw).at(1)));
             }
             else if (raw.find("scenario") != std::string::npos) {
+                current_parse = "scenario";
                 _tmp.scenario = data::tokenize(raw).at(1);
             }
             else if (raw.find("encapsulation") != std::string::npos) {
-                _tmp.encapsulation = data::tokenize(raw).at(2);
+                current_parse = "encapsulaton";
+                _tmp.encapsulation = data::tokenize(raw).at(1);
             }
             else if (raw.find("transform-set") != std::string::npos) {
-                _tmp.transform_set = data::tokenize(raw).at(2);
+                current_parse = "transform-set";
+                _tmp.transform_set = data::tokenize(raw).at(1);
             }
             else if (raw.find("security-association") != std::string::npos) {
-                _tmp.secure_associtaion = data::tokenize(raw).at(2);
+                current_parse = "security-association";
+                _tmp.secure_associtaion = data::tokenize(raw).at(4);
             }
             else if (raw.find("pfs") != std::string::npos) {
+                current_parse = "pfs";
                 _tmp.pfs = data::tokenize(raw).at(2);
             }
             else if (raw.find("local-policy") != std::string::npos) {
+                current_parse = "local-policy";
                 _tmp.local_policy = data::search_address_object(data::tokenize(raw).at(1));
                 // If the local policy are an interface, we need to find the interface and link to it.
                 if (_tmp.local_policy.ipv4.find("lan") != std::string::npos) {
@@ -414,15 +437,17 @@ serialize_config::crypto_vpn serialize_config::parse_crypto_map(data::tokenized_
                 }
             }
             else if (raw.find("remote-policy") != std::string::npos) {
+                current_parse = "remote-policy";
                 _tmp.remote_policy = data::search_address_object(data::tokenize(raw).at(1));
             }
             else if (raw.find("conn-check") != std::string::npos) {
+                current_parse = "conn-check";
                 _tmp.conn_check = data::tokenize(raw).at(2);
             }
         }
     }
     catch (std::exception e) {
-        logger::log("\"parse_crypto_map\" out of range! Tell Teodor!! saved in log0.txt %s, %s\n", e.what(), map.name.c_str());
+        logger::log("\"parse_crypto_map\" out of range! Tell Teodor!! saved in log0.txt %s, %s, %s\n", e.what(), current_parse.c_str(), map.name.c_str());
         system("pause");
         exit(0);
     }

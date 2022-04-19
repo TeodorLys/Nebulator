@@ -53,11 +53,12 @@ int main(int argc, char** argv) {
     logger::log("Checking dependencies...\n");
     verification verify;
     if (!verify.verify_scripts()) {
-        logger::log("Could not verify dependencies... contact Teodor...exiting\n");
+        logger::log("Could not verify dependencies... contact Dev...exiting\n");
         logger::log("{END}\n");
         system("pause");
         exit(0);
     }
+
     logger::log("OK!\n");
     logger::log("Checking execution policy...\n");
     std::string script = data::current_path + "\\dep\\lua\\ps.exe -exec";
@@ -67,7 +68,7 @@ int main(int argc, char** argv) {
         remove(std::string(data::current_path + "\\dep\\conf\\nope.txt").c_str());
         logger::log("{END}\n");
         system("pause");
-        exit(0);
+        logger::safe_exit(0);
     }
     logger::log("OK!\n");
 
@@ -151,6 +152,8 @@ int main(int argc, char** argv) {
     logger::log("Translating site_to_site VPN...\n");
     trans.translate_vpn();
     logger::log("OK!\n");
+    logger::log("\nTHIS WILL BE SENT!(BELOW)\n");
+    trans.display_data();
     logger::log("Sending interface config to Nebula...\n");
     sp.call_stupid_powershell(1, data::current_org);
     logger::log("Sending NAT config to Nebula...\n");

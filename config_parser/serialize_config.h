@@ -26,7 +26,7 @@ public:
     };
 
     struct wan_lan_interface{
-        int idx; // WAN = 0, LAN = 1
+        int idx = -1; // WAN = 0, LAN = 1
         ip_address_config_style_interface ip;
         ip_address_config_style_interface gateway;
         ip_dhcp_pool_interface dhcp_pool;
