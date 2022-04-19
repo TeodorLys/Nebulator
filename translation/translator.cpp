@@ -96,7 +96,7 @@ TODO: Do that parsing...
         vpn_buff.ipsec_ike_version = "IKE_V1";
         vpn_buff.ipsec_lifetime = std::stoi(_vpn.ipsec_isakmp.life_time);
         //vpn_buff.ipsec_local_id
-        vpn_buff.ipsec_negotiation_mode = _vpn.ipsec_isakmp.mode;
+        vpn_buff.ipsec_negotiation_mode = _vpn.ipsec_isakmp.mode.empty() ? "MAIN" : _vpn.ipsec_isakmp.mode;
         logger::log("Using ipsec_pfs_diffie = DH2 for %s\n", _vpn.name.c_str());
         vpn_buff.ipsec_pfs_diffie = "DH2";
         vpn_buff.ipsec_preset = "DEFAULT";

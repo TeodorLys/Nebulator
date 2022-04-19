@@ -128,6 +128,12 @@ serialize_config::virtual_server serialize_config::parse_virtual_server_object_t
                 else if (_tok.at(a + 1) == "service-group") {
                     parse_virtual_server_service_group(buff, data::search_object_group(_tok.at(a + 2)), ranges);
                 }
+                else if (_tok.at(a + 1) == "any") {
+                    buff.external_service.ports = "1 65535";
+                    buff.external_service.protocol = "tcp udp";
+                    buff.internal_service.ports = "1 65535";
+                    buff.internal_service.protocol = "tcp udp";
+                }
             }
             else if (_tok.at(a) == "mapped-service") {
                 buff.internal_service = data::search_service_object(_tok.at(a + 1));
