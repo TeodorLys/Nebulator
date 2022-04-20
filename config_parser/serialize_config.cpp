@@ -23,6 +23,7 @@ void serialize_config::serialize(){
         p.tokenize_file(data::current_path + "\\dep\\conf\\startup-config.conf");
     serialize_interface("wan");
     serialize_interface("lan");
+    serialize_interface("dmz");
 
     serialize_virtual_server();
     serialize_vpn_map();
@@ -444,7 +445,11 @@ serialize_config::crypto_vpn serialize_config::parse_crypto_map(data::tokenized_
             }
             else if (raw.find("remote-policy") != std::string::npos) {
                 current_parse = "remote-policy";
-                _tmp.remote_policy = data::search_address_object(data::tokenize(raw).at(1));
+                printf("%s\n", raw.c_str());
+                data::address_object ado = data::search_address_object(data::tokenize(raw).at(1));
+                if (ado.type == "interface-subnet")
+                    ado.ipv4 = get_interface(ado.ipv4).ip.ipv4;
+                _tmp.remote_policy = ado;
             }
             else if (raw.find("conn-check") != std::string::npos) {
                 current_parse = "conn-check";

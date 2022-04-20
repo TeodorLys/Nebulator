@@ -50,7 +50,9 @@ data::address_object data::tokenize_address_object(std::string s){
 
     _tmp.name = buff[1];
     _tmp.ipv4 = buff[2];
-    if(_tmp.ipv4 == "interface-subnet")
+    if (_tmp.ipv4 == "interface-subnet" || _tmp.ipv4 == "interface-ip") {
+        _tmp.type = buff[2];
         _tmp.ipv4 = buff[3];
+    }
     return _tmp;
 }

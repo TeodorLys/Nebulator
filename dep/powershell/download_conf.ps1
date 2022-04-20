@@ -17,8 +17,8 @@ $ErrorActionPreference = "silentlycontinue"
 
 write-Host "IP: " -nonewline
 $ip = read-host
-if($ip -eq $null){
-  write-host "Failed"
+if($ip.Length -eq 0){
+  write-host "ip was empty"
   "nope" | set-content ".\dep\conf\startup-config.conf"
   exit;
 }

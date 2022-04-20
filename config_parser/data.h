@@ -23,7 +23,7 @@ public:
     };
 
     struct address_object {
-        std::string name = "NULL", ipv4 = "NULL";
+        std::string name = "NULL", ipv4 = "NULL", type = "NULL";
     };
 
     struct organisation {
